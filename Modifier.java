@@ -1,13 +1,14 @@
 package OSM2Tramod;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.locationtech.jts.io.ParseException;
+//import org.locationtech.jts.io.ParseException;
 
 public class Modifier {
 
@@ -44,7 +45,7 @@ public class Modifier {
 	private void convertVertexesCoordinates() {
 		try {
 			this.dataContainer.getVertexes().convertToCoordinates();
-		} catch (ParseException e) {
+		} catch (Exception e) {
 			System.out.println("Something went wrong in Coordinates conversion");
 			e.printStackTrace();
 		}
@@ -210,6 +211,86 @@ public class Modifier {
 
 	public void setDataContainer(DataContainer dataContainer) {
 		this.dataContainer = dataContainer;
+	}
+
+	public void calculateBuildingAreas() {
+		for (OSMBuilding osmBuilding : dataContainer.getBuildings()) {
+			osmBuilding.calculateArea();
+		}
+		
+	}
+
+	public void calculateBuildingCentroids() {
+		
+		for (OSMBuilding osmBuilding : dataContainer.getBuildings()) {
+			osmBuilding.calculateCentroid();
+		}
+		
+	}
+
+	public void processGrid(int userGridRequest) {
+		dataContainer.getGrid().init(userGridRequest, dataContainer.getBounds());
+		System.out.println("Grid initialized...");
+		
+		System.out.println("Assigning buildings to grid...");
+		dataContainer.getGrid().calculateGenerators(dataContainer.getBuildings());
+		
+		System.out.println("Generators calculated for grid...");
+
+		
+	}
+
+	public void assignTrafficGenerators() {
+		dataContainer.getGrid().assignGenerators(dataContainer.getVertexes().getVertexList());
+		
+	}
+
+	public void assignVertexlessGenerators() {
+
+		GridLocator maxGL, tmpGL;
+		int[] dX = { -1,0,1 };
+		int[] dY = { -1,0,1 };
+		double maxTG = 0.0, tmpTG;
+		
+		int counter = 0;
+		Iterator<HashMap.Entry<GridLocator, Tile>> it = dataContainer.getGrid().getTiles().entrySet().iterator();
+		
+		while (it.hasNext()) {
+			HashMap.Entry<GridLocator, Tile> pair = it.next();
+			maxTG = 0.0;
+			maxGL = null;
+			
+			
+			if(pair.getValue().getVertex() == null) {		
+			
+				for (int i = 0; i < dY.length; i++) {
+				
+					for (int j = 0; j < dX.length; j++) {
+					
+						tmpGL = new GridLocator(pair.getKey().getX()+dX[j], pair.getKey().getY()+dY[i]);
+						
+						if(dataContainer.getGrid().getTiles().containsKey(tmpGL)) {
+							if(dataContainer.getGrid().getTiles().get(tmpGL).getVertex()!=null) {
+								if(dataContainer.getGrid().getTiles().get(tmpGL).getTrafficGenerator() > maxTG) {
+									maxGL = tmpGL;
+									maxTG = dataContainer.getGrid().getTiles().get(tmpGL).getTrafficGenerator();
+								}
+							}
+						}
+					}
+				}
+				if(maxGL != null) {
+					tmpTG = pair.getValue().getTrafficGenerator() + maxTG;
+					pair.getValue().setTrafficGenerator(tmpTG);	
+				}
+				else {
+					System.out.println("Tile with centroid: " + pair.getValue().getCentroid().getLon() + " " + pair.getValue().getCentroid().getLat() + " wasn`t assigned to any crossroad!");
+					System.out.println("Grid is too dense!");
+				}
+				
+			}
+		}
+		
 	}
 
 

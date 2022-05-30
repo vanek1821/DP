@@ -89,34 +89,11 @@ public class DataContainer {
 		this.turnRestrictions = turnRestrictions;
 	}
 
-	public void calculateBuildingAreas() {
-		for (OSMBuilding osmBuilding : buildings) {
-			osmBuilding.calculateArea();
-		}
-
-	}
-	public void calculateBuildingCentroids() {
-		for (OSMBuilding osmBuilding : buildings) {
-			osmBuilding.calculateCentroid();
-		}
-	}
 
 	public void printBuildings() {
 		for (OSMBuilding osmBuilding : buildings) {
 			System.out.println(osmBuilding.toString());
 		}
-
-	}
-
-	public void processGrid(int useGridRequest) {
-		
-		this.grid.init(useGridRequest, this.bounds);
-		System.out.println("Grid initialized...");
-		
-		System.out.println("Assigning buildings to grid...");
-		this.grid.calculateGenerators(this.getBuildings());
-		
-		System.out.println("Generators calculated for grid...");
 
 	}
 	
@@ -147,14 +124,6 @@ public class DataContainer {
 	}
 
 
-	public void assignTrafficGenerators() {
-		
-		this.grid.assignGenerators(this.vertexes.getVertexList());
-		
-		
-	}
-
-
 	public int countTilesWithoutVertex() {
 		int counter = 0;
 		Iterator<HashMap.Entry<GridLocator, Tile>> it = this.getGrid().getTiles().entrySet().iterator();
@@ -170,56 +139,6 @@ public class DataContainer {
 		return counter;
 	}
 
-
-	public void assignVertexlessGenerators() {
-		
-		GridLocator maxGL, tmpGL;
-		int[] dX = { -1,0,1 };
-		int[] dY = { -1,0,1 };
-		double maxTG = 0.0, tmpTG;
-		
-		int counter = 0;
-		Iterator<HashMap.Entry<GridLocator, Tile>> it = this.getGrid().getTiles().entrySet().iterator();
-		
-		while (it.hasNext()) {
-			HashMap.Entry<GridLocator, Tile> pair = it.next();
-			maxTG = 0.0;
-			maxGL = null;
-			
-			
-			if(pair.getValue().getVertex() == null) {		
-			
-				for (int i = 0; i < dY.length; i++) {
-				
-					for (int j = 0; j < dX.length; j++) {
-					
-						tmpGL = new GridLocator(pair.getKey().getX()+dX[j], pair.getKey().getY()+dY[i]);
-						
-						if(this.getGrid().getTiles().containsKey(tmpGL)) {
-							if(this.getGrid().getTiles().get(tmpGL).getVertex()!=null) {
-								if(this.getGrid().getTiles().get(tmpGL).getTrafficGenerator() > maxTG) {
-									maxGL = tmpGL;
-									maxTG = this.getGrid().getTiles().get(tmpGL).getTrafficGenerator();
-								}
-							}
-						}
-					}
-				}
-				if(maxGL != null) {
-					tmpTG = pair.getValue().getTrafficGenerator() + maxTG;
-					pair.getValue().setTrafficGenerator(tmpTG);	
-				}
-				else {
-					System.out.println("Tile with centroid: " + pair.getValue().getCentroid().getLon() + " " + pair.getValue().getCentroid().getLat() + " wasn`t assigned to any crossroad!");
-					System.out.println("Grid is too dense!");
-				}
-				
-			}
-		}
-	}
-
-
-	
 
 
 	public void assignZoneIDs() {

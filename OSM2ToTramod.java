@@ -27,6 +27,7 @@ public class OSM2ToTramod {
 		//String buildingsFileName = "src/OSM2Tramod/2po_sources_"+projectName+"/"+projectName+"-buildings.osm";
 		
 		String outputFolder = args[5];
+		//String outputFolder = "";
 		
 		System.out.println("OSM2Tramod");
 
@@ -52,24 +53,24 @@ public class OSM2ToTramod {
 	
 		System.out.println("Calculating areas..");
 
-		dataContainer.calculateBuildingAreas();
+		modifier.calculateBuildingAreas();
 
 		System.out.println("Areas have been calculated.");
 
 		System.out.println("Calculating centroids..");
 
-		dataContainer.calculateBuildingCentroids();
+		modifier.calculateBuildingCentroids();
 
 		System.out.println("Centroids have been calculated");
 		
 		System.out.println("User Input: " + userGridRequest);
-		
-		dataContainer.processGrid(userGridRequest);
+	
+		modifier.processGrid(userGridRequest);
 		
 		System.out.println("Real number of tiles: " + dataContainer.getGrid().getTiles().size());
 		
 		
-		dataContainer.assignTrafficGenerators();
+		modifier.assignTrafficGenerators();
 		
 		System.out.println("Counting tiles without vertex");
 		
@@ -77,7 +78,8 @@ public class OSM2ToTramod {
 		
 		System.out.println("Assigning traffic Generators without vertex...");
 		
-		dataContainer.assignVertexlessGenerators();
+		modifier.assignVertexlessGenerators();
+		
 		dataContainer.assignZoneIDs();
 		
 		
@@ -99,6 +101,7 @@ public class OSM2ToTramod {
 		System.out.println("done...");
 
 		TramodWriter trW = new TramodWriter(outputFolder+"/"+projectName + "_Tramod_Edges.sql", outputFolder+"/"+projectName + "_Tramod_Turn_Restrictions.sql", outputFolder+"/"+projectName + "_Tramod_Vertexes.sql", outputFolder+"/"+projectName + "_Tramod_Zones.sql", dataContainer, projectName);
+		trW.executeCreatingDirs(outputFolder);
 		trW.executeWritingLines();
 		trW.executeWritingTurnRestrictions();
 		trW.executeWritingNodes();

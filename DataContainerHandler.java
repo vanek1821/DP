@@ -43,8 +43,8 @@ public class DataContainerHandler extends DefaultHandler {
 		// reset the tag value
 		currentValue.setLength(0);
 
-		//ystem.out.printf("Start Element : %s%n", qName);
-
+		//System.out.println(q);
+		
 		if (qName.equalsIgnoreCase("bounds")) {
 			// get tag's attribute by name
 			/*String minlat = attributes.getValue("minlat");

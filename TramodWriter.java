@@ -3,6 +3,9 @@ package OSM2Tramod;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -30,11 +33,15 @@ public class TramodWriter {
 
 	public void executeWritingLines() {
 		try {
+			
 			File myObj = new File(lineFileName);
-			HashMap<Integer, LineChangesTree> modifiedLines = this.dataContainer.getModifiedLines().getLines();
 			if(!myObj.exists()) myObj.createNewFile();
 			
 			FileWriter lineWriter = new FileWriter(myObj);
+			
+			HashMap<Integer, LineChangesTree> modifiedLines = this.dataContainer.getModifiedLines().getLines();
+			
+			
 			lineWriter.write(
 					"-- Created by  : osm2tramod\n" + 
 					"-- Version     : 3.0.00\n" + 
@@ -301,6 +308,16 @@ public class TramodWriter {
 
 	public void setZonesFileName(String zonesFileName) {
 		this.zonesFileName = zonesFileName;
+	}
+
+
+
+	public void executeCreatingDirs(String outputFolder){
+		
+		File dir = new File(outputFolder);
+		System.out.println("Creating dir: " + outputFolder);
+	    dir.mkdirs();
+	    if(dir.isDirectory()) System.out.println(dir.getPath() + " is directory");
 	}
 
 
